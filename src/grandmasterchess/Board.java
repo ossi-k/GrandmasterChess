@@ -1,11 +1,15 @@
 package grandmasterchess;
 
+import java.util.ArrayList;
+
 public class Board {
 
     private Piece[][] board;
+    private boolean whiteToMove;
 
     public Board() {
         board = new Piece[8][8];
+        whiteToMove = true;
         for (int rank = 0; rank < 8; rank++) {
             for (int file = 0; file < 8; file++) {
                 //Mustat namiskat
@@ -71,27 +75,29 @@ public class Board {
 
     public void movePiece(int startRank, int startFile, int endRank, int endFile) {
         Piece piece = board[startRank][startFile];
-        if (board[endRank][endFile] == null && legalMoveCheck(piece, startRank, startFile, endRank, endFile)) {
-            piece.setFile(endFile);
-            piece.setRank(endRank);
-            board[startRank][startFile] = null;
-            board[endRank][endFile] = piece;
-        } else {
-            System.out.println("Illegal move");
+        if ((piece.getColor().equals("white") && whiteToMove) || (piece.getColor().equals("black") && !whiteToMove)) {
+            if (board[endRank][endFile] == null && legalMoveCheck(piece, startRank, startFile, endRank, endFile) && collisionCheck(piece, startRank, startFile, endRank, endFile)) {
+                piece.setFile(endFile);
+                piece.setRank(endRank);
+                board[startRank][startFile] = null;
+                board[endRank][endFile] = piece;
+                whiteToMove = !whiteToMove;
+            } else {
+                System.out.println("illegal move");
+            }
         }
     }
 
-    public Boolean legalMoveCheck(Piece piece,int startRank, int startFile, int endRank, int endFile) {
-        //Piece piece = board[startRank][startFile];
-        //soldier rulescheck, double move as first move currently not possible
+    public Boolean legalMoveCheck(Piece piece, int startRank, int startFile, int endRank, int endFile) {
+        //pawn rules check, moving two squares as first move currently not possible
         if (piece.getName().equals("pawn")) {
             if (piece.getColor().equals("black")) {
-                if (endRank <= startRank || endFile != startFile) {
+                if ((endRank <= startRank || endFile != startFile) || Math.abs(endRank - startRank) > 1) {
                     return false;
                 }
             }
             if (piece.getColor().equals("white")) {
-                if (endRank >= startRank || endFile != startFile) {
+                if ((endRank >= startRank || endFile != startFile) || Math.abs(endRank - startRank) > 1) {
                     return false;
                 }
             }
@@ -139,8 +145,66 @@ public class Board {
         }
         return true;
     }
-    
-    public boolean collisionCheck(int startRank, int startFile, int endRank, int endFile) {
+
+    public boolean collisionCheck(Piece piece, int startRank, int startFile, int endRank, int endFile) {
+        if (piece.getName().equals("pawn")) {
+            if (piece.getColor().equals("black")) {
+                for (int rank = piece.getRank() + 1; rank <= endRank; rank++) {
+                    if (board[rank][piece.getFile()] != null) {
+                        return false;
+                    }
+                }
+            }
+            if (piece.getColor().equals("white")) {
+                for (int rank = piece.getRank() - 1; rank >= endRank; rank--) {
+                    if (board[rank][piece.getFile()] != null) {
+                        return false;
+                    }
+                }
+            }
+        }
+        if (piece.getName().equals("bishop")) {
+            //moving down and right
+            if (endRank > startRank && endFile > startFile) {
+                int file = piece.getFile() + 1;
+                for (int rank = piece.getRank() + 1; rank <= endRank; rank++) {
+                    if (board[rank][file] != null) {
+                        return false;
+                    }
+                    file += 1;
+                }
+            }
+            //moving up and right
+            if (endRank < startRank && endFile > startFile) {
+                int file = piece.getFile() + 1;
+                for (int rank = piece.getRank() - 1; rank >= endRank; rank--) {
+                    if (board[rank][file] != null) {
+                        return false;
+                    }
+                    file += 1;
+                }
+            }
+            //moving left and down
+            if (endRank > startRank && endFile < startFile) {
+                int file = piece.getFile() - 1;
+                for (int rank = piece.getRank() + 1; rank <= endRank; rank++) {
+                    if (board[rank][file] != null) {
+                        return false;
+                    }
+                    file -= 1;
+                }
+            }
+            //moving left and up
+            if (endRank < startRank && endFile < startFile) {
+                int file = piece.getFile() - 1;
+                for (int rank = piece.getRank() - 1; rank >= endRank; rank--) {
+                    if (board[rank][file] != null) {
+                        return false;
+                    }
+                    file -= 1;
+                }
+            }
+        }
         return true;
     }
 }
