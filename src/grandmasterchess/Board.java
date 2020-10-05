@@ -27,7 +27,7 @@ public class Board {
                 if (rank == 1) {
                     board[rank][file] = new Piece("pawn", "black", rank, file, -1);
                 }
-                //valkoiste namiskat
+                //valkoiset namiskat
                 if (rank == 7 && (file == 0 || file == 7)) {
                     board[rank][file] = new Piece("rook", "white", rank, file, 5);
                 }
@@ -63,5 +63,84 @@ public class Board {
             tilanne += "\n";
         }
         return tilanne;
+    }
+
+    public Piece selectPiece(int rank, int file) {
+        return board[rank][file];
+    }
+
+    public void movePiece(int startRank, int startFile, int endRank, int endFile) {
+        Piece piece = board[startRank][startFile];
+        if (board[endRank][endFile] == null && legalMoveCheck(piece, startRank, startFile, endRank, endFile)) {
+            piece.setFile(endFile);
+            piece.setRank(endRank);
+            board[startRank][startFile] = null;
+            board[endRank][endFile] = piece;
+        } else {
+            System.out.println("Illegal move");
+        }
+    }
+
+    public Boolean legalMoveCheck(Piece piece,int startRank, int startFile, int endRank, int endFile) {
+        //Piece piece = board[startRank][startFile];
+        //soldier rulescheck, double move as first move currently not possible
+        if (piece.getName().equals("pawn")) {
+            if (piece.getColor().equals("black")) {
+                if (endRank <= startRank || endFile != startFile) {
+                    return false;
+                }
+            }
+            if (piece.getColor().equals("white")) {
+                if (endRank >= startRank || endFile != startFile) {
+                    return false;
+                }
+            }
+        }
+        //rook rules check
+        if (piece.getName().equals("rook")) {
+            if (endRank != startRank && endFile != startFile) {
+                return false;
+            }
+        }
+        //bishop rules check
+        if (piece.getName().equals("bishop")) {
+            if ((Math.abs(endRank - startRank) - Math.abs(endFile - startFile) != 0)) {
+                return false;
+            }
+        }
+        //knight rules check
+        if (piece.getName().equals("knight")) {
+            if (Math.abs(endRank - startRank) > 2 || (Math.abs(endFile - startFile) > 2)) {
+                return false;
+            }
+            if ((Math.abs(endRank - startRank) == 2 && (Math.abs(endFile - startFile) != 1))
+                    || (Math.abs(endFile - startFile) == 2) && (Math.abs(endRank - startRank) != 1)) {
+                return false;
+            }
+        }
+        //queen rules check
+        if (piece.getName().equals("queen")) {
+            if (endRank != startRank && endFile != startFile) {
+                if ((Math.abs(endRank - startRank) - Math.abs(endFile - startFile) != 0)) {
+                    return false;
+                }
+            }
+            if ((endRank == startRank && endFile != startFile) || (endRank != startRank && endFile == startFile)) {
+                if (endRank != startRank && endFile != startFile) {
+                    return false;
+                }
+            }
+        }
+        //king rules check
+        if (piece.getName().toLowerCase().equals("king")) {
+            if (Math.abs(endRank - startRank) > 1 || Math.abs(endFile - startFile) > 1) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public boolean collisionCheck(int startRank, int startFile, int endRank, int endFile) {
+        return true;
     }
 }

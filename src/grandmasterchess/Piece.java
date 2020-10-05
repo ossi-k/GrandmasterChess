@@ -18,8 +18,34 @@ public class Piece {
     public String getNameAndColor() {
         return color + " " +  name + " ";
     }
-    
-    
+
+    public int getRank() {
+        return rank;
+    }
+
+    public int getFile() {
+        return file;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    public void setFile(int file) {
+        this.file = file;
+    }
 }
 
 
